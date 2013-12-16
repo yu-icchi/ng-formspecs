@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html ng-app="app" lang="jp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <title>FormSpecs</title>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/angular.min.js"></script>
+    <script type="text/javascript" src="js/formspecs.js"></script>
+</head>
+<body>
+    <div ng-controller="FormSpecs" class="container">
+        <form>
+            <div class="form-group">
+                <label class="control-label" for="id">ID</label>
+                <input ng-model="user.id" type="text" id="id" class="form-control" placeholder="ID">
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="pass">PASS</label>
+                <input ng-model="user.pass" type="password" id="pass" class="form-control" placeholder="PASS">
+            </div>
+            <div class="form-group">
+                <button ng-click="save()" class="btn btn-primary">SAVE</button>
+            </div>
+        </form>
+        <pre>{{test}}</pre>
+        <pre>{{user|json}}</pre>
+    </div>
+</body>
+</html>
