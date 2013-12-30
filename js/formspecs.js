@@ -7,7 +7,7 @@ formSpecs.factory('httpService', function($http) {
 
 });
 
-function inputTemplate(model, field) {
+function createInput(model, field) {
 
     return '<div class="form-group">' +
            '<label class="control-label" for="' + field.name + '">' + field.label + '</label>' +
@@ -15,16 +15,16 @@ function inputTemplate(model, field) {
            '</div>';
 }
 
-function buttonTemplate(action, oklabel) {
+function createButton(data) {
 
     return '<div class="form-group">' +
-           '<button ng-click="' + action + '" class="btn btn-primary">' + oklabel + '</button>' +
+           '<button ng-click="' + data.action + '" class="btn btn-primary">' + data.oklabel + '</button>' +
            '</div>';
 }
 
 function createForm(data) {
 
-    var element = '<form>';
+    var element = '';
 
     // fields
     var func = function(fields) {
@@ -40,18 +40,16 @@ function createForm(data) {
             }
 
             // TODO: ここのtemplateをどうにかしたいね
-            element += inputTemplate(data.model + '.' + field.name, field);
+            element += createInput(data.model + '.' + field.name, field);
         });
     };
     func(data.fields);
 
     // button
-    element += buttonTemplate(data.action, data.oklabel);
+    element += createButton(data);
 
     // debug
-    element += '<pre>{{' + data.model + '|json}}</pre>';
-
-    element += '</form>';
+    element += '<pre ng-bind="' + data.model + '"></pre>';
 
     return element;
 }
@@ -61,7 +59,7 @@ formSpecs.directive('formSpecs', function() {
 
     // view
     return {
-        restrict: 'E',
+        restrict: 'AE',
         link: function(scope, element, attr) {
 
             var data = scope.data;
