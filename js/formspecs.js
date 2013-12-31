@@ -1,54 +1,103 @@
-/*global angular */
+/* global angular */
 
 // FormSpecs Module
 var formSpecs = angular.module('FormSpecs', []);
 
-// input
-function createInput(model, field) {
+// text
+function createTextInput(model, field) {
 
-    return  '<div class="control-group">' +
-                '<label class="control-label" for="' + model + '">' + field.label + '</label>' +
-                '<div class="controls">' +
-                    '<input id="' + model + '" type="' + field.type + '" ng-model="' + model + '"/>' +
+    // 属性
+    var attr = '';
+    for (var n in field) {
+        if (n !== 'label' && n !== 'type' && n !== 'name') {
+            attr += n + '="' + field[n] + '"';
+        }
+    }
+
+    // テンプレート
+    return  '<div class="form-group">' +
+                '<label class="col-sm-2 control-label" for="' + model + '">' + field.label + '</label>' +
+                '<div class="col-sm-10">' +
+                    '<input id="' + model + '" class="form-control" type="' + field.type + '" ng-model="' + model + '"' + attr +'/>' +
                 '</div>' +
             '</div>';
+}
+
+// select
+function createSelectBox() {
+
+}
+
+// checkbox
+function createCheckBox() {
+
+}
+
+// radio
+function createRadioButton() {
+
 }
 
 // button
 function createButton(data) {
 
-    return  '<div class="control-group">' +
-                '<div class="controls">' +
+    return  '<div class="form-group">' +
+                '<div class="col-sm-offset-2 col-sm-10">' +
                     '<button ng-click="' + data.action + '(' + data.model + ')' +
                         '" class="btn btn-primary">' + data.oklabel + '</button>' +
-                    '<button ng-click="reset()" class="btn">キャンセル</button>' +
+                    '<button ng-click="reset()" class="btn btn-default">キャンセル</button>' +
                 '</div>' +
             '</div>';
+}
+
+// field
+function createField(element, model, field) {
+    // model name
+    var ns = model + '.' + field.name;
+
+    switch (field.type) {
+        case 'group':
+            element.push('<div><span>' + field.label + '</span>');
+
+            field.fields.forEach(function(_field) {
+                createField(element, ns, _field);
+            });
+
+            element.push('</div>');
+            break;
+        case 'array':
+            break;
+        case 'multiple':
+            break;
+        case 'space':
+            break;
+        case 'hidden':
+            break;
+        case 'select':
+            break;
+        case 'radio':
+            break;
+        case 'checkbox':
+            break;
+        case 'number':
+        case 'text':
+        case 'password':
+        default :
+            element.push(createTextInput(ns, field));
+            break;
+    }
 }
 
 // form
 function createForm(data) {
 
     var element = [];
-    element.push('<form class="form-horizontal">');
+    element.push('<form class="form-horizontal" role="form">');
 
     // fields
-    var func = function(fields, element) {
-        fields.forEach(function(field) {
-
-            if (Array.isArray(field.fields)) {
-                var fields = field.fields;
-                fields.forEach(function(_field) {
-                    _field.name = field.name + '.' + _field.name;
-                });
-                func(fields, element);
-                return;
-            }
-
-            element.push(createInput(data.model + '.' + field.name, field));
-        });
-    };
-    func(data.fields, element);
+    data.fields.forEach(function(field) {
+        createField(element, data.model, field);
+    });
 
     // button
     element.push(createButton(data));
@@ -127,8 +176,18 @@ app.value('User', {
             label: '終了',
             name: 'end',
             type: 'number',
+            value: 10,
             min: 10,
             max: 20
+        }, {
+            label: '期間２',
+            name: 'term',
+            type: 'group',
+            fields: [{
+                label: 'ラベル',
+                name: 'label',
+                type: 'text'
+            }]
         }]
     }, {
         label: '公開/非公開',
