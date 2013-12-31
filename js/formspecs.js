@@ -1,31 +1,35 @@
-/*global angular*/
+/*global angular */
 
 // FormSpecs Module
 var formSpecs = angular.module('FormSpecs', []);
 
-// FactoryService
-formSpecs.factory('httpService', function($http) {
-
-});
-
+// input
 function createInput(model, field) {
 
-    return '<div class="form-group">' +
-             '<label class="control-label" for="' + field.name + '">' + field.label + '</label>' +
-             '<input type="' + field.type + '" ng-model="' + model + '">' +
-           '</div>';
+    return  '<div class="control-group">' +
+                '<label class="control-label" for="' + model + '">' + field.label + '</label>' +
+                '<div class="controls">' +
+                    '<input id="' + model + '" type="' + field.type + '" ng-model="' + model + '"/>' +
+                '</div>' +
+            '</div>';
 }
 
+// button
 function createButton(data) {
 
-    return '<div class="form-group">' +
-             '<button ng-click="' + data.action + '" class="btn btn-primary">' + data.oklabel + '</button>' +
-           '</div>';
+    return  '<div class="control-group">' +
+                '<div class="controls">' +
+                    '<button ng-click="' + data.action + '(' + data.model + ')' + '" class="btn btn-primary">' + data.oklabel + '</button>' +
+                '</div>' +
+            '</div>';
 }
 
+// form
 function createForm(data) {
 
-    var element = '';
+    var element = '<form class="form-horizontal">';
+
+    console.log(data);
 
     // fields
     var func = function(fields) {
@@ -49,20 +53,29 @@ function createForm(data) {
     // button
     element += createButton(data);
 
+    element += '</form>';
+
     // debug
-    element += '<pre>{{' + data.model + '|json}}</pre>';
+    if (data.debug) {
+        element += '<pre>{{' + data.model + '|json}}</pre>';
+    }
 
     return element;
 }
 
 // directive
 formSpecs.directive('formSpecs', ['$compile', function($compile) {
+
     // view
     return {
         restrict: 'AE',
-        link: function(scope, element, attrs, controller) {
+        link: function(scope, element, attrs) {
 
+            // <form-specs data="data">のdata=の値
             var data = scope.data;
+
+            // デバッグモード
+            data.debug = attrs.debug;
 
             // Formの自動生成
             var el = angular.element(createForm(data));
@@ -78,45 +91,54 @@ formSpecs.directive('formSpecs', ['$compile', function($compile) {
 // Application
 var app = angular.module('app', ['FormSpecs']);
 
-// Controller
-app.controller('User', ['$scope', function($scope) {
-
-    $scope.test = 'User';
-
-    $scope.data = {
-        title: 'テストForm',
-        model: 'user',
-        desc: '',
-        action: 'save()',
-        oklabel: '保存',
+// User Scheme
+app.value('User', {
+    title: 'テストForm',
+    model: 'user',
+    desc: 'ユーザデータスキーマ',
+    action: 'save',
+    oklabel: '保存',
+    fields: [{
+        label: 'コード',
+        name: 'id',
+        type: 'text',
+        placeholder: 'アイテムコード'
+    }, {
+        label: 'なまえ',
+        name: 'name',
+        type: 'text',
+        placeholder: 'アイテム名'
+    }, {
+        label: '期間',
+        name: 'term',
         fields: [{
-            label: 'コード',
-            name: 'id',
-            type: 'text'
+            label: '開始',
+            name: 'start',
+            type: 'number',
+            min: 0,
+            max: 99
         }, {
-            label: 'なまえ',
-            name: 'name',
-            type: 'text'
-        }, {
-            label: '期間',
-            name: 'term',
-            fields: [{
-                label: '開始',
-                name: 'start',
-                type: 'text'
-            }, {
-                label: '終了',
-                name: 'end',
-                type: 'text'
-            }]
+            label: '終了',
+            name: 'end',
+            type: 'number',
+            min: 10,
+            max: 20
         }]
-    };
+    }, {
+        label: '公開/非公開',
+        name: 'published',
+        type: 'radio'
+    }]
+});
 
-    $scope.save = function() {
-        alert(JSON.stringify($scope.user, null, '  '));
-    };
+// Controller
+app.controller('User', ['$scope', 'User', function($scope, User) {
 
-    $scope.user = {};
+    $scope.data = User;
+
+    $scope.save = function(data) {
+        alert(JSON.stringify(data, null, '  '));
+    };
 
 }]);
 
