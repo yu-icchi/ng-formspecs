@@ -19,7 +19,9 @@ function createButton(data) {
 
     return  '<div class="control-group">' +
                 '<div class="controls">' +
-                    '<button ng-click="' + data.action + '(' + data.model + ')' + '" class="btn btn-primary">' + data.oklabel + '</button>' +
+                    '<button ng-click="' + data.action + '(' + data.model + ')' +
+                        '" class="btn btn-primary">' + data.oklabel + '</button>' +
+                    '<button ng-click="reset()" class="btn">キャンセル</button>' +
                 '</div>' +
             '</div>';
 }
@@ -27,12 +29,11 @@ function createButton(data) {
 // form
 function createForm(data) {
 
-    var element = '<form class="form-horizontal">';
-
-    console.log(data);
+    var element = [];
+    element.push('<form class="form-horizontal">');
 
     // fields
-    var func = function(fields) {
+    var func = function(fields, element) {
         fields.forEach(function(field) {
 
             if (Array.isArray(field.fields)) {
@@ -40,27 +41,26 @@ function createForm(data) {
                 fields.forEach(function(_field) {
                     _field.name = field.name + '.' + _field.name;
                 });
-                func(fields);
+                func(fields, element);
                 return;
             }
 
-            // TODO: ここのtemplateをどうにかしたいね
-            element += createInput(data.model + '.' + field.name, field);
+            element.push(createInput(data.model + '.' + field.name, field));
         });
     };
-    func(data.fields);
+    func(data.fields, element);
 
     // button
-    element += createButton(data);
+    element.push(createButton(data));
 
-    element += '</form>';
+    element.push('</form>');
 
     // debug
     if (data.debug) {
-        element += '<pre>{{' + data.model + '|json}}</pre>';
+        element.push('<pre>{{' + data.model + '|json}}</pre>');
     }
 
-    return element;
+    return element.join('');
 }
 
 // directive
@@ -71,10 +71,15 @@ formSpecs.directive('formSpecs', ['$compile', function($compile) {
         restrict: 'AE',
         link: function(scope, element, attrs) {
 
+            // リセットボタンの設定
+            scope.reset = scope.reset || function() {
+                alert('reset');
+            };
+
             // <form-specs data="data">のdata=の値
             var data = scope.data;
 
-            // デバッグモード
+            // <form-specs debug="true" デバッグモード
             data.debug = attrs.debug;
 
             // Formの自動生成
@@ -111,6 +116,7 @@ app.value('User', {
     }, {
         label: '期間',
         name: 'term',
+        type: 'group',
         fields: [{
             label: '開始',
             name: 'start',
