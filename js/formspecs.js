@@ -1,4 +1,4 @@
-/* global angular */
+/*global angular */
 
 // FormSpecs Module
 var formSpecs = angular.module('FormSpecs', []);
@@ -17,25 +17,73 @@ function createTextInput(model, field) {
     // テンプレート
     return  '<div class="form-group">' +
                 '<label class="col-sm-2 control-label" for="' + model + '">' + field.label + '</label>' +
-                '<div class="col-sm-10">' +
-                    '<input id="' + model + '" class="form-control" type="' + field.type + '" ng-model="' + model + '"' + attr +'/>' +
+                '<div class="col-sm-8">' +
+                    '<input id="' + model + '" name="' + model + '" class="form-control" type="' + field.type + '" ng-model="' + model + '"' + attr +'/>' +
                 '</div>' +
             '</div>';
 }
 
 // select
-function createSelectBox() {
+function createSelectBox(model, label, value) {
+
 
 }
 
 // checkbox
-function createCheckBox() {
+function createCheckBox(model, field) {
 
+    var element = [];
+
+    for (var i = 0; i < field.labels.length; i++) {
+        var id = model + '-' + i;
+        var label = field.labels[i];
+        var value = field.values[i];
+
+        var template = [];
+        template.push('<div class="checkbox col-sm-offset-2">');
+        template.push('<label>');
+
+        if (typeof value !== 'string') {
+            template.push('<input type="checkbox" id="' + id + '" value="' + value + '" ng-model="' + model + '">' + label);
+        } else {
+            template.push('<input type="checkbox" id="' + id + '" value="' + value + '" ng-model="' + model + '" ng-true-value="' + value + '" ng-false-value="">' + label);
+        }
+
+        template.push('</label>');
+        template.push('</div>');
+
+        element.push(template.join(''));
+    }
+
+    return element.join('');
 }
 
 // radio
-function createRadioButton() {
+function createRadioButton(model, field) {
 
+    var element = [];
+
+    for (var i = 0; i < field.labels.length; i++) {
+        var label = field.labels[i];
+        var value = field.values[i];
+
+        var template = [];
+        template.push('<div class="radio col-sm-offset-2">');
+        template.push('<label>');
+
+        if (typeof value !== 'string') {
+            template.push('<input type="radio" value="' + value + '" ng-model="' + model + '" ng-value="' + value + '">' + label);
+        } else {
+            template.push('<input type="radio" value="' + value + '" ng-model="' + model + '">' + label);
+        }
+
+        template.push('</label>');
+        template.push('</div>');
+
+        element.push(template.join(''));
+    }
+
+    return element.join('');
 }
 
 // button
@@ -44,7 +92,7 @@ function createButton(data) {
     return  '<div class="form-group">' +
                 '<div class="col-sm-offset-2 col-sm-10">' +
                     '<button ng-click="' + data.action + '(' + data.model + ')' +
-                        '" class="btn btn-primary">' + data.oklabel + '</button>' +
+                        '" class="btn btn-primary ">' + data.oklabel + '</button>' +
                     '<button ng-click="reset()" class="btn btn-default">キャンセル</button>' +
                 '</div>' +
             '</div>';
@@ -57,13 +105,13 @@ function createField(element, model, field) {
 
     switch (field.type) {
         case 'group':
-            element.push('<div><span>' + field.label + '</span>');
+            element.push('<div><blockquote><h3>' + field.label + '</h3>');
 
             field.fields.forEach(function(_field) {
                 createField(element, ns, _field);
             });
 
-            element.push('</div>');
+            element.push('</blockquote></div>');
             break;
         case 'array':
             break;
@@ -76,8 +124,10 @@ function createField(element, model, field) {
         case 'select':
             break;
         case 'radio':
+                element.push(createRadioButton(ns, field));
             break;
         case 'checkbox':
+                element.push(createCheckBox(ns, field));
             break;
         case 'number':
         case 'text':
@@ -117,7 +167,7 @@ formSpecs.directive('formSpecs', ['$compile', function($compile) {
 
     // view
     return {
-        restrict: 'AE',
+        restrict: 'E',
         link: function(scope, element, attrs) {
 
             // リセットボタンの設定
@@ -192,7 +242,21 @@ app.value('User', {
     }, {
         label: '公開/非公開',
         name: 'published',
-        type: 'radio'
+        type: 'checkbox',
+        labels: ['公開', '非公開'],
+        values: ['public', 'private']
+    }, {
+        label: 'カテゴリー',
+        name: 'category',
+        type: 'radio',
+        labels: ['服', '家具'],
+        values: ['cloth', 'furniture']
+    }, {
+        label: 'タイプ',
+        name: 'type',
+        type: 'radio',
+        labels: ['方法１', '方法２', '方法３'],
+        values: [1, 2, 3]
     }]
 });
 
