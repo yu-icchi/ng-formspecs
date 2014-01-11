@@ -266,7 +266,7 @@ app.controller('User', ['$scope', 'User', function($scope, User) {
     $scope.data = User;
 
     $scope.save = function(data) {
-        alert(JSON.stringify(data, null, '  '));
+        alert(JSON.stringify(data, null, ' '));
     };
 
 }]);
