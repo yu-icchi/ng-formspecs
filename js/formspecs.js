@@ -116,6 +116,17 @@ function createField(element, model, field) {
         case 'array':
             break;
         case 'multiple':
+            element.push('<div><h3>' + field.label + '</h3>');
+            element.push('<div class="input-append" ng-repeat="d in data.' + field.name + '">');
+
+            field.fields.forEach(function(_field) {
+                createField(element, ns, _field);
+            });
+            element.push('<button ng-click="remove($index)">削除{{$index}}</button>');
+
+            element.push('</div>');
+            element.push('<button ng-click="add()">追加</button>');
+            element.push('</div>');
             break;
         case 'space':
             break;
@@ -257,17 +268,46 @@ app.value('User', {
         type: 'radio',
         labels: ['方法１', '方法２', '方法３'],
         values: [1, 2, 3]
+    },{
+        label: 'リワード',
+        name: 'reward',
+        type: 'multiple',
+        fields: [
+             {
+                label: '分割数',
+                name: 'divide',
+                type: 'text',
+                class: 'number',
+                min: 0,
+                max: 10
+            },{
+                label: 'アイテムコード',
+                name: 'code',
+                type: 'text',
+                autocomplete: 'item',
+                autocompleteWith: ['name'],
+                maxlength: 64
+            },
+        ]
     }]
 });
 
 // Controller
-app.controller('User', ['$scope', 'User', function($scope, User) {
+app.controller('UserCtrl', function($scope, User) {
 
     $scope.data = User;
+    $scope.data.reward = [];
 
     $scope.save = function(data) {
         alert(JSON.stringify(data, null, ' '));
     };
 
-}]);
+    $scope.remove = function(index) {
+        $scope.data.reward.splice(index, 1);
+    };
+
+    $scope.add = function() {
+        $scope.data.reward.push({});
+    };
+});
 
